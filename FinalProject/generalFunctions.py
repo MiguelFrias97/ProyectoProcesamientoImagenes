@@ -6,7 +6,7 @@ flags = [i for i in dir(cv2) if i.startswith('COLOR_')]
 
 def detectColor(img,color):
     """
-    From an image detects the given color. Return the mask.
+    Given an image detects the given color. Return the mask.
     :param img: numpy Array
     :param color: tuple
     :return: numpy Array
@@ -21,8 +21,8 @@ def detectColor(img,color):
 
 def detectColors(image,colors):
     """
-    From an image detects the given colors. Return the mask.
-    :param img: numpy Array
+    Given an image detects the given colors. Return the mask.
+    :param image: numpy Array
     :param colors: list
     :return: numpy Array
     """
@@ -37,3 +37,42 @@ def detectColors(image,colors):
         result += img
         
     return result
+
+def resize(img,scale):
+    """
+    Given an image returns a resized image. 
+    :param img: numpy Array
+    :param scale: float or int
+    :return: numpy Array
+    """
+    row = img.shape[0]
+    col = img.shape[1]
+
+    return cv2.resize(img,(row*scale,col*scale))
+
+def rotate(img,angle):
+    """
+    Given an image returns a rotated image. 
+    :param img: numpy Array
+    :param angle: float or int
+    :return: numpy Array
+    """
+    row = img.shape[0]
+    col = img.shape[1]
+
+    return cv2.warpAffine(img,cv2.getRotationMatrix2D((col,row),angle,1),(col*2,row*2))
+
+def resizeAndRotate(img,scale,angle):
+    """
+    Given an image returns a resized and rotated image. 
+    :param img: numpy Array
+    :param scale: float or int
+    :param angle: float or int
+    :return: numpy Array
+    """
+    row = img.shape[0]
+    col = img.shape[1]
+
+    res = cv2.resize(img,(row*scale,col*scale))
+    return cv2.warpAffine(res,cv2.getRotationMatrix2D((col,row),angle,1),(col*scale,row*scale))
+
