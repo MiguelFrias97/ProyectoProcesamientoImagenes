@@ -13,14 +13,14 @@ def detectColor(img,color,colorModel):
     :return: numpy Array
     """
     if colorModel == 0:
-        img = cv2.cvtcolor(img,cv2.COLOR_BGR2RGB)
-        img = cv2.cvtcolor(img,cv2.COLOR_RGB2HSV)
+        img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        img = cv2.cvtColor(img,cv2.COLOR_RGB2HSV)
         mask = cv2.inRange(img,color[0],color[1])
         img = cv2.bitwise_and(img,50,200)
         img = np.asarray(img,dtype='float32')/255.0
     else:
-        img = cv2.cvtcolor(img,cv2.COLOR_BGR2RGB)
-        img = cv2.cvtcolor(img,cv2.COLOR_RGB2HSL)
+        img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        img = cv2.cvtColor(img,cv2.COLOR_RGB2HSL)
         mask = cv2.inRange(img,color[0],color[1])
         img = cv2.bitwise_and(img,50,200)
         img = np.asarray(img,dtype='float32')/255.0
@@ -39,8 +39,8 @@ def detectColors(image,colors,colorModel):
     if colorModel == 0:
         for color in colors:
             img = image.copy()
-            img = cv2.cvtcolor(img,cv2.COLOR_BGR2RGB)
-            img = cv2.cvtcolor(img,cv2.COLOR_RGB2HSV)
+            img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+            img = cv2.cvtColor(img,cv2.COLOR_RGB2HSV)
             mask = cv2.inRange(img,color[0],color[1])
             img = cv2.bitwise_and(img,50,200)
             img = np.asarray(img,dtype='float32')/255.0
@@ -48,8 +48,8 @@ def detectColors(image,colors,colorModel):
         else: 
             for color in colors:
             img = image.copy()
-            img = cv2.cvtcolor(img,cv2.COLOR_BGR2RGB)
-            img = cv2.cvtcolor(img,cv2.COLOR_RGB2HSV)
+            img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+            img = cv2.cvtColor(img,cv2.COLOR_RGB2HSV)
             mask = cv2.inRange(img,color[0],color[1])
             img = cv2.bitwise_and(img,50,200)
             img = np.asarray(img,dtype='float32')/255.0
