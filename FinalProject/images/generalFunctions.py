@@ -46,13 +46,13 @@ def detectColors(image,colors,colorModel):
             result += img
         else: 
             for color in colors:
-            img = image.copy()
-            img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-            img = cv2.cvtColor(img,cv2.COLOR_RGB2HSV)
-            mask = cv2.inRange(img,color[0],color[1])
-            img = cv2.bitwise_and(img,50,200)
-            img = np.asarray(img,dtype='float32')/255.0
-            result += img
+                img = image.copy()
+                img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+                img = cv2.cvtColor(img,cv2.COLOR_RGB2HSV)
+                mask = cv2.inRange(img,color[0],color[1])
+                img = cv2.bitwise_and(img,50,200)
+                img = np.asarray(img,dtype='float32')/255.0
+                result += img
             
     return result
 

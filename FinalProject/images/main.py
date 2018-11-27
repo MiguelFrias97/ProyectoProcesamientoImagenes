@@ -13,11 +13,14 @@ if __name__ == "__main__":
     tools.pop(tools.index('main.py'))
     tools.pop(tools.index('generalFunctions.py'))
     
-    objetoBuscar = cv2.imread('blue hammer.png')
-    
+    blueHSV = (np.array([240,3,100]),np.array([219,100,40]))
+    objSearch = cv2.imread('blue hammer.png')
+    objHSV = detectColor(objSearch,blueHSV,0)
+
+    objHSVContour = cv2.findContours()
 
     for tool in tools:
-        imgEntrada = cv2.imread(tool)
+        imgIn = cv2.imread(tool)
 
         
 
