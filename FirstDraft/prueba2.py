@@ -33,13 +33,8 @@ def main():
 
     #img = prepareImage('imagen.png',lightWhite,darkWhite)
     #template = prepareImage('imagen1.png',lightWhite,darkWhite)
-    img, color = prepareImage('blue hammer pic.png',colors)
-    print('here')
-    row = img.shape[0]
-    col = img.shape[1]
-    M = cv2.getRotationMatrix2D((col/2,row/2),0,1)
-    img = cv2.warpAffine(img,M,(col,row))
-
+    img_name = captureImage()
+    img, color = prepareImage(img_name,colors)
 
     tool, x, y = detectTool(img,tools,colors,color)
     print(tool,x,y)
@@ -54,6 +49,7 @@ def main():
     plt.show()
     img = cv2.resize(img,(col*3,row*3))
     cv2.imshow('Detection', img)
+    
 def detectTool(img,tools,colors, color):
     tool = ''
     value_Count = []
@@ -113,4 +109,23 @@ def detectColor(img,colors):
         if color == False:
             break
     return value
+
+def captureImage():
+    cam = cv2.VideoCapture(0)
+    cv2.namedWindow("Image Capture")
+    while True:
+        ret, frame = cam.read()
+        cv2.imshow("Image Capture", frame)
+        if not ret:
+            break
+        k = cv2.waitKey(1)
+        if k%256 == 32:
+            # SPACE pressed
+            img_name = "captured tool.png"
+            cv2.imwrite(img_name, frame)
+            break
+    cam.release()
+    cv2.destroyAllWindows()
+    return img_name
 main()
+
