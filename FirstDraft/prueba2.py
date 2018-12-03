@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import hsv_to_rgb
 from scipy import signal
 import csv
+import pandas as pd
 
 def main():
     flags = [i for i in dir(cv2) if i.startswith('COLOR_')]
@@ -31,34 +32,44 @@ def main():
     colors = [[lightblue,darkblue],[lightyellow,darkyellow],[lightgreen,darkgreen],[lightred,darkred]]
     tools = [['blue hammer.png','blue chainsaw.png'],['yellow chainsaw.png'],['green shovel.png'],['red shovel.png','red hammer.png']]
 
-
     #img = prepareImage('imagen.png',lightWhite,darkWhite)
     #template = prepareImage('imagen1.png',lightWhite,darkWhite)
     img_name = captureImage()
     img, color = prepareImage(img_name,colors)
 
     tool, x, y = detectTool(img,tools,colors,color)
-    print(tool,x,y)
-    try:
-        tools = openCSV('tools.csv')
-        if tool in tools:
-            tools[tool] += 1
-        else:
-            tools[tool] = 1
-    except:
-        tools = {tool:1}
-        writeCSV('tools.csv',tools)
+    #print(tool,x,y)
+    
+    tool_type = tool.split(".")[0]
+    print(tool_type)
 
-    bw = 10
-    bh = 10
+    file_string = "test_file.csv"
+
+    try:
+        df = pd.read_csv(file_string)
+
+        if tool_type in df.values:
+            df.loc[df["Tool"] == tool_type, "Qty"] += 1
+            df.to_csv(file_string, index=False)
+
+        else:
+            new_tool = {'Tool':tool_type, 'Qty':1}
+            add2CSV(file_string, new_tool)
+        
+    except:
+        new_tool = {'Tool':tool_type, 'Qty':1}
+        writeCSV(file_string, new_tool)
+
+    #bw = 10
+    #bh = 10
 
     img = cv2.cvtColor(img,cv2.COLOR_GRAY2RGB)
-    cv2.rectangle(img,(x-bw,y-bh),(x+bw,y+bh),(0,0,255),3)
-    cv2.rectangle(img,(x-bw,y-bh),(x+bw,x+bh),(0,0,255),3)
+    #cv2.rectangle(img,(x-bw,y-bh),(x+bw,y+bh),(0,0,255),3)
+    #cv2.rectangle(img,(x-bw,y-bh),(x+bw,x+bh),(0,0,255),3)
     plt.imshow(img,cmap='gray')
     plt.show()
-    img = cv2.resize(img,(col*3,row*3))
-    cv2.imshow('Detection', img)
+    #img = cv2.resize(img,(col*3,row*3))
+    #cv2.imshow('Detection', img)
     
 def detectTool(img,tools,colors, color):
     tool = ''
@@ -67,7 +78,7 @@ def detectTool(img,tools,colors, color):
     for i in range(len(tools[color])):
         value_Count.append(0)
     for i in range(len(tools[color])):
-        print(tools[color][i])
+        print("Comparing to " + str(tools[color][i]))
         
         template, irrel = prepareImage(tools[color][i],colors)
         imgR = signal.correlate2d(img,template,boundary='symm',mode='full')
@@ -101,19 +112,27 @@ def prepareImage(image,colors):
     img = np.asarray(img,dtype='float32')/255.0
     return img, color
 
-def openCSV(nombre):
-    dic = {}
-    with open(nombre, newline='') as csvfile:
-         spamreader = csv.reader(csvfile, delimiter=' ',)
-         for row in spamreader:
-             dic[row[0]] = int(row[1])
-    return dic
+##def openCSV(nombre):
+##    dic = {}
+##    with open(nombre, newline='') as csvfile:
+##         spamreader = csv.reader(csvfile, delimiter=' ',)
+##         for row in spamreader:
+##             dic[row[0]] = int(row[1])
+##    return dic
 
-def writeCSV(nombre,dic):
-    with open(nombre, 'w', newline='') as csvfile:
-        spamwriter = csv.writer(csvfile, delimiter=' ', quoting=csv.QUOTE_MINIMAL)
-        for tool in dic:
-            spamwriter.writerow([tool,dic[tool]])
+def add2CSV(file, tool):
+    with open(file, 'a', newline='') as csvfile:
+        fieldnames = ['Tool', 'Qty']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writerow(tool)
+
+def writeCSV(file, tool):
+    with open(file, 'w', newline='') as csvfile:
+        fieldnames = ['Tool', 'Qty']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        writer.writerow(tool)
     
 def detectColor(img,colors):
     for i in range(len(colors)):
@@ -152,4 +171,3 @@ def captureImage():
     cv2.destroyAllWindows()
     return img_name
 main()
-
