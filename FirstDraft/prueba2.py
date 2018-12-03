@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 from matplotlib.colors import hsv_to_rgb
 from scipy import signal
+import csv
 
 def main():
     flags = [i for i in dir(cv2) if i.startswith('COLOR_')]
@@ -38,6 +39,15 @@ def main():
 
     tool, x, y = detectTool(img,tools,colors,color)
     print(tool,x,y)
+    try:
+        tools = openCSV('tools.csv')
+        if tool in tools:
+            tools[tool] += 1
+        else:
+            tools[tool] = 1
+    except:
+        tools = {tool:1}
+        writeCSV('tools.csv',tools)
 
     bw = 10
     bh = 10
@@ -91,6 +101,20 @@ def prepareImage(image,colors):
     img = np.asarray(img,dtype='float32')/255.0
     return img, color
 
+def openCSV(nombre):
+    dic = {}
+    with open(nombre, newline='') as csvfile:
+         spamreader = csv.reader(csvfile, delimiter=' ',)
+         for row in spamreader:
+             dic[row[0]] = int(row[1])
+    return dic
+
+def writeCSV(nombre,dic):
+    with open(nombre, 'w', newline='') as csvfile:
+        spamwriter = csv.writer(csvfile, delimiter=' ', quoting=csv.QUOTE_MINIMAL)
+        for tool in dic:
+            spamwriter.writerow([tool,dic[tool]])
+    
 def detectColor(img,colors):
     for i in range(len(colors)):
         attempt = cv2.inRange(img,colors[i][0],colors[i][1])
