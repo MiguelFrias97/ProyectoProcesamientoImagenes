@@ -1,61 +1,63 @@
-from generalFunctions import *
+import numpy as np
+import argparse
+#import imutils
+import glob
+import cv2
+import matplotlib.pyplot as plt
+
+from matplotlib.colors import hsv_to_rgb
 from scipy import signal
 
-import cv2
-import subprocess as sbp
+if __name__="__main__":
+    flags = [i for i in dir(cv2) if i.startswith('COLOR_')]
+    green = [120,255,255]
+    red = [0,255,255]
+    blue = [240,255,255]
+    yellow = [60,255,255]
 
-def executeBashCommand(command):
-    process = sbp.Popen(command.split(), stdout=sbp.PIPE)
-    out,error = process.communicate()
-    return out
+    lightyellow = np.asarray([25,50,50])
+    darkyellow = np.asarray([45,255,255])
 
-if __name__ == "__main__":
-    tools = executeBashCommand('ls').decode('utf-8').split('\n')
-    tools.pop(tools.index('main.py'))
-    tools.pop(tools.index('generalFunctions.py'))
-    tools.pop(tools.index('__pycache__'))
+    lightred = np.asarray([0,50,50])
+    darkred = np.asarray([20,255,255])
+
+    lightgreen = np.asarray([50,50,50])
+    darkgreen = np.asarray([70,255,255])
+
+    lightblue= np.asarray([110,50,50])
+    darkblue = np.asarray([130,255,255])
+
+    colors = [[lightblue,darkblue],[lightyellow,darkyellow],[lightgreen,darkgreen],[lightred,darkred]]
+    tools = [['blue hammer.png','blue chainsaw.png'],['yellow chainsaw.png'],['green shovel.png'],['red shovel.png','red hammer.png']]
+
+
+    #img = prepareImage('imagen.png',lightWhite,darkWhite)
+    #template = prepareImage('imagen1.png',lightWhite,darkWhite)
+    img_name = captureImage()
+    img, color = prepareImage(img_name,colors)
+
+    tool, x, y = detectTool(img,tools,colors,color)
+    print(tool,x,y)
+    try:
+        tools = openCSV('tools.csv')
+        if tool in tools:
+            tools[tool] += 1
+        else:
+            tools[tool] = 1
+    except:
+        tools = {tool:1}
+        writeCSV('tools.csv',tools)
+
+    bw = 10
+    bh = 10
+
+    img = cv2.cvtColor(img,cv2.COLOR_GRAY2RGB)
+    cv2.rectangle(img,(x-bw,y-bh),(x+bw,y+bh),(0,0,255),3)
+    cv2.rectangle(img,(x-bw,y-bh),(x+bw,x+bh),(0,0,255),3)
+    plt.imshow(img,cmap='gray')
+    plt.show()
+    img = cv2.resize(img,(col*3,row*3))
+    cv2.imshow('Detection', img)
     
-    blueHSV = (np.array([240,3,100]),np.array([219,100,40]))
-    objSearch = cv2.imread('blue hammer.png')
-    w, h,c = objSearch.shape
-    objHSV = detectColor(objSearch,blueHSV,0)
 
-    mask = np.zeros_like(objSearch)
 
-    gray = cv2.cvtColor(objSearch,cv2.COLOR_BGR2GRAY)
-    ret,thresh = cv2.threshold(gray,0.1*gray.max(),255,0)
-    _,contour,_ = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
-    objSearchFinal = cv2.drawContours(mask, contour, -1, (137,109,46), 2)
-
-    cv2.imshow('test',objSearchFinal)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    
-    for tool in tools:
-        imgIn = cv2.imread('blue hammer.png')
-        blueHSV = (np.array([240,3,100]),np.array([219,100,40]))
-##        imgInHSV = detectColor(imgIn,blueHSV,0)
-
-        mask = np.zeros_like(imgIn)
-
-        gray = cv2.cvtColor(imgIn,cv2.COLOR_BGR2GRAY)
-        ret,thresh = cv2.threshold(gray,0.1*gray.max(),255,0)
-        _,contour,_ = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
-        imgInComp = cv2.drawContours(mask, contour, -1, (137,109,46), 2)
-
-        res = cv2.matchTemplate(objSearchFinal,imgInComp,cv2.TM_CCOEFF_NORMED)
-        threshold = 0.8
-        loc = np.where( res >= threshold)
-        for pt in zip(*loc[::-1]):
-            print(pt)
-            cv2.rectangle(objSearch, pt, (pt[0] + 50, pt[1] + 50), (0,0,255), 2)
-
-        cv2.imshow('Result',objSearch)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-        
-
-        
-
-    
